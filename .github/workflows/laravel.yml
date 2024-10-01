@@ -35,6 +35,8 @@ jobs:
       with:
         node-version: 22
         cache: 'npm'
+    - name: Install Node Dependencies
+      run: npm install
     - name: build assets
       run: npm run build
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
