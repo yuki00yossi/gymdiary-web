@@ -1,81 +1,88 @@
-Gym Diary - Backend
+# Gym Diary - Backend
+
 Welcome to the Gym Diary backend repository! This project serves as the backend API for the Gym Diary service, a platform connecting trainers and trainees for personalized fitness sessions anytime, anywhere.
 
-Overview
+## Overview
+
 The backend of Gym Diary is responsible for handling the core functionalities such as user authentication, trainer-trainee matching, session scheduling, and progress tracking. Built with scalability and security in mind, this API serves as the backbone of the Gym Diary ecosystem.
 
-This project uses Laravel Sail for local development, providing a Docker-based environment that simplifies the setup process.
+This project uses [Laravel Sail](https://laravel.com/docs/11.x/sail) for local development, providing a Docker-based environment that simplifies the setup process.
 
-Features
-User authentication (JWT-based)
-Trainer and trainee profile management
-Matching system for trainers and trainees
-Scheduling and session management
-Progress tracking for trainees
-Support for multiple fitness goals
-Installation
+## Features
+
+- User authentication (sanctum-based)
+- Trainer and trainee profile management
+- Matching system for trainers and trainees
+- Scheduling and session management
+- Progress tracking for trainees
+- Support for multiple fitness goals
+
+## Installation
+
 To set up the project locally for development or learning purposes using Laravel Sail, follow these steps:
 
-Clone the repository:
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/gym-diary-backend.git
+    ```
+2. Navigate into the project directory:
+    ```bash
+    cd gym-diary-backend
+    ```
+3. Install dependencies:
+    ```bash
+    composer install
+    ```
+4. Set up the environment variables (refer to `.env.example`):
+    ```bash
+    cp .env.example .env
+    ```
+5. Install Laravel Sail:
+    ```bash
+    php artisan sail:install
+    ```
+6. Start the development environment:
+    ```bash
+    ./vendor/bin/sail up
+    ```
 
-bash
-コードをコピーする
-git clone https://github.com/yourusername/gym-diary-backend.git
-Navigate into the project directory:
+7. Run migrations:
+    ```bash
+    ./vendor/bin/sail artisan migrate
+    ```
 
-bash
-コードをコピーする
-cd gym-diary-backend
-Install dependencies:
+8. The development server will be available at `http://localhost`.
 
-bash
-コードをコピーする
-composer install
-Set up the environment variables (refer to .env.example):
+## Usage
 
-bash
-コードをコピーする
-cp .env.example .env
-Install Laravel Sail:
+Once the development environment is up and running, you can interact with the API at `http://localhost`. API route documentation will be provided soon.
 
-bash
-コードをコピーする
-php artisan sail:install
-Start the development environment:
+## License
 
-bash
-コードをコピーする
-./vendor/bin/sail up
-Run migrations:
+This project is licensed under a custom license. While you are free to fork and use this repository for **personal learning purposes**, any form of **commercial use or distribution is strictly prohibited** without prior written consent.
 
-bash
-コードをコピーする
-./vendor/bin/sail artisan migrate
-The development server will be available at http://localhost.
+### Allowed:
+- Forking for personal learning or development purposes.
+- Contributions to the project.
 
-Usage
-Once the development environment is up and running, you can interact with the API at http://localhost. API route documentation will be provided soon.
+### Not Allowed:
+- Commercial use, such as integrating the code into a paid service or application.
+- Redistributing the project or modified versions for commercial purposes.
 
-License
-This project is licensed under a custom license. While you are free to fork and use this repository for personal learning purposes, any form of commercial use or distribution is strictly prohibited without prior written consent.
-
-Allowed:
-Forking for personal learning or development purposes.
-Contributions to the project.
-Not Allowed:
-Commercial use, such as integrating the code into a paid service or application.
-Redistributing the project or modified versions for commercial purposes.
 For any licensing inquiries, please contact us directly.
 
-Contribution
+## Contribution
+
 Contributions are more than welcome! If you have ideas, improvements, or bug fixes, feel free to open an issue or submit a pull request. Let's build something great together!
 
-Fork this repository.
-Create your feature branch: git checkout -b feature/your-feature.
-Commit your changes: git commit -m 'Add your feature'.
-Push to the branch: git push origin feature/your-feature.
-Open a pull request.
+1. Fork this repository.
+2. Create your feature branch: `git checkout -b feature/your-feature`.
+3. Commit your changes: `git commit -m 'Add your feature'`.
+4. Push to the branch: `git push origin feature/your-feature`.
+5. Open a pull request.
+
 We appreciate all contributions, big or small, to help enhance the Gym Diary backend.
 
-Contact
-For any inquiries or questions, feel free to reach out to us at contact@yourdomain.com.
+## Contact
+
+For any inquiries or questions, feel free to reach out to us at yoshioka@studio-babe.jp
