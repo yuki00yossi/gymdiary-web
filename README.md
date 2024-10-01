@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/826276a0-f9ee-4dc1-8bcc-d1db61efeb32" style="width: 240px;" />
+
 # Gym Diary - Backend
 
 Welcome to the Gym Diary backend repository! This project serves as the backend API for the Gym Diary service, a platform connecting trainers and trainees for personalized fitness sessions anytime, anywhere.  
