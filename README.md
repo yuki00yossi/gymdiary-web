@@ -1,7 +1,7 @@
 # Gym Diary - Backend
 
-Welcome to the Gym Diary backend repository! This project serves as the backend API for the Gym Diary service, a platform connecting trainers and trainees for personalized fitness sessions anytime, anywhere.
-
+Welcome to the Gym Diary backend repository! This project serves as the backend API for the Gym Diary service, a platform connecting trainers and trainees for personalized fitness sessions anytime, anywhere.  
+日本語版READMEは[こちら](https://github.com/yuki00yossi/gymdiary-web/blob/main/README-ja.md)
 ## Overview
 
 The backend of Gym Diary is responsible for handling the core functionalities such as user authentication, trainer-trainee matching, session scheduling, and progress tracking. Built with scalability and security in mind, this API serves as the backbone of the Gym Diary ecosystem.
