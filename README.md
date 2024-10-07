@@ -1,4 +1,9 @@
-<img src="https://github.com/user-attachments/assets/826276a0-f9ee-4dc1-8bcc-d1db61efeb32" style="width: 240px;" />
+<p align="center"><img src="https://github.com/user-attachments/assets/826276a0-f9ee-4dc1-8bcc-d1db61efeb32" style="width: 240px;" /></p>
+
+<p align="center" class="budges">
+    <img src="https://img.shields.io/badge/PHP-8.3-777BB4.svg?logo=php&style=plastic">
+    <img src="https://img.shields.io/badge/Laravel-11.x-E74430.svg?logo=laravel&style=plastic">
+</p>
 
 # Gym Diary - Backend
 
