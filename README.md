@@ -21,39 +21,59 @@ This project uses [Laravel Sail](https://laravel.com/docs/11.x/sail) for local d
 
 ## Installation
 
-To set up the project locally for development or learning purposes using Laravel Sail, follow these steps:
+To set up the project locally for development or learning purposes using Laravel Sail, please follow these steps:
 
 1. Clone the repository:
     ```bash
     git clone https://github.com/yourusername/gym-diary-backend.git
     ```
-2. Navigate into the project directory:
+
+2. Navigate to the project directory:
     ```bash
     cd gym-diary-backend
     ```
+
 3. Install dependencies:
     ```bash
-    composer install
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
     ```
-4. Set up the environment variables (refer to `.env.example`):
+
+4. Set up environment variables (refer to `.env.example`):
     ```bash
     cp .env.example .env
     ```
-5. Install Laravel Sail:
+
+5. Modify the contents of the `.env` file:
     ```bash
-    php artisan sail:install
+    # Comment out the following line:
+    # DB_CONNECTION=sqlite
+
+    # Uncomment the following:
+    DB_CONNECTION=mysql
+    DB_HOST=mysql
+    DB_PORT=3306
+    DB_DATABASE=hoge
+    DB_USERNAME=sail
+    DB_PASSWORD=password
     ```
+
 6. Start the development environment:
     ```bash
     ./vendor/bin/sail up
     ```
 
-7. Run migrations:
+7. Run the database migrations:
     ```bash
     ./vendor/bin/sail artisan migrate
     ```
 
 8. The development server will be available at `http://localhost`.
+
 
 ## Usage
 
