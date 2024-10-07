@@ -31,16 +31,29 @@ Laravel Sailを使用して、学習や開発目的でローカル環境をセ�
     ```
 3. 依存関係をインストールします:
     ```bash
-    composer install
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
     ```
 4. 環境変数を設定します（`.env.example`を参考にしてください）:
     ```bash
     cp .env.example .env
     ```
-5. Laravel Sailをインストールします:
-    ```bash
-    php artisan sail:install
-    ```
+5. .envの内容を修正します：
+   ```.env
+   # DB_CONNECTION=sqlite コメントアウト
+   
+   # 以下のコメントアウトを外す
+   DB_CONNECTION=mysql
+   DB_HOST=mysql
+   DB_PORT=3306
+   DB_DATABASE=hoge
+   DB_USERNAME=sail
+   DB_PASSWORD=password
+   ```
 6. 開発環境を起動します:
     ```bash
     ./vendor/bin/sail up
@@ -55,7 +68,7 @@ Laravel Sailを使用して、学習や開発目的でローカル環境をセ�
 
 ## 使用方法
 
-開発環境が起動したら、APIは `http://localhost` で利用できます。APIのルートに関するドキュメントは近日公開予定です。
+開発環境が起動したら、`http://localhost` で利用できます。APIのルートに関するドキュメントは近日公開予定です。
 
 ## ライセンス
 
