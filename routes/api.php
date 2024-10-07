@@ -7,7 +7,7 @@ use App\Http\Controllers\ApiRegisterUserController;
 use App\Http\Controllers\Api\UserController;
 
 // 会員登録
-Route::post('/register', [ApiRegisterUserController::class, 'store'])->name('api.user.register');
+Route::post('/user', [UserController::class, 'store'])->name('api.user.store');
 // ログイン（トークン発行）
 Route::post('/token', [UserController::class, 'token'])->name('api.user.token');
 
