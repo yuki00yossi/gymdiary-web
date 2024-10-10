@@ -651,3 +651,48 @@ it('fails if sets and reps are missing for repetition_based exercise', function 
                 ]
              ]);
 });
+
+
+/**
+ * ---------------------------------------------------
+ * Tests for Delete API.
+ * ---------------------------------------------------
+ */
+it('can delete a workout', function () {
+    $user = User::factory()->create();
+    $workout = Workout::factory()->for($user)->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->deleteJson('/api/workouts/' . $workout->id);
+
+    $response->assertStatus(200)
+             ->assertJson(['message' => 'Workout deleted successfully']);
+
+    $this->assertDatabaseMissing('workouts', ['id' => $workout->id]);
+});
+
+it('fails if the user tries to delete another user\'s workout', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    $workout = Workout::factory()->for($user1)->create();
+
+    Sanctum::actingAs($user2);
+
+    $response = $this->deleteJson('/api/workouts/' . $workout->id);
+
+    $response->assertStatus(403)
+             ->assertJson(['message' => 'You do not have permission to delete this workout.']);
+});
+
+it('returns 404 if workout is not found', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->deleteJson('/api/workouts/999'); // Non-existent workout ID
+
+    $response->assertStatus(404)
+             ->assertJson(['message' => 'Workout not found.']);
+});

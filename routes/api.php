@@ -30,4 +30,6 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::post('/workouts', [WorkoutController::class, 'store'])->name('api.workout.store');
     // 更新
     Route::put('/workouts/{workout_id}', [WorkoutController::class, 'update'])->name('api.workout.update');
+    // 削除
+    Route::delete('/workouts/{workout_id}', [WorkoutController::class, 'destroy'])->name('api.workout.delete');
 });

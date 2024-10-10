@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetWorkoutRequest;
 use App\Http\Requests\StoreWorkoutRequest;
@@ -95,5 +97,32 @@ class WorkoutController extends Controller
             'message' => 'Workout updated successfully',
             'data' => $workout->load('exercises'),
         ], 200);
+    }
+
+    /**
+     * Delete a workout.
+     *
+     * @param int $workout_id
+     * @return JsonResponse
+     */
+    public function destroy(Request $request, $workout_id)
+    {
+        $workout = Workout::find($workout_id);
+
+        if (!$workout) {
+            return response()->json(['message' => 'Workout not found.'], 404);
+        }
+
+        // 認証ユーザーが所有者であることを確認
+        if ($workout->user_id !== Auth::id()) {
+            return response()->json(['message' => 'You do not have permission to delete this workout.'], 403);
+        }
+
+
+        // ワークアウトと関連するエクササイズを削除
+        $workout->exercises()->delete();
+        $workout->delete();
+
+        return response()->json(['message' => 'Workout deleted successfully'], 200);
     }
 }
