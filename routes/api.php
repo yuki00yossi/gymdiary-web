@@ -35,6 +35,8 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::delete('/workouts/{workout_id}', [WorkoutController::class, 'destroy'])->name('api.workout.delete');
 
     /** 食事ログ関連のAPI */
+    // 取得
+    Route::get('/meals/{userId}', [MealController::class, 'retrieve'])->name('api.meal.retrieve');
     // 保存
     Route::post('/meals', [MealController::class, 'store'])->name('api.meal.store');
 });

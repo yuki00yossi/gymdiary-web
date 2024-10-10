@@ -188,3 +188,80 @@ it('fails if a non-existent food_id is provided', function () {
     $response->assertStatus(422)
              ->assertJsonValidationErrors(['foods.0.food_id']);
 });
+
+
+/**
+ * ---------------------------------------------------
+ * Tests for Retrieval API.
+ * ---------------------------------------------------
+ */
+it('can retrieve meal history for authenticated user', function () {
+    $user = User::factory()->create();
+    $meal = Meal::factory()->for($user)->create();
+    $food = Food::factory()->create();
+    $meal->foods()->attach($food, ['amount' => 100]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson("/api/meals/{$user->id}");
+
+    $response->assertStatus(200)
+             ->assertJsonStructure([
+                 'user_id',
+                 'meals' => [
+                     '*' => [
+                         'id',
+                         'date',
+                         'meal_type',
+                         'foods' => [
+                             '*' => [
+                                 'name',
+                                 'calories',
+                                 'protein',
+                                 'carbs',
+                                 'fats'
+                             ]
+                         ]
+                     ]
+                 ]
+             ]);
+});
+
+it('filters meal history by date and meal_type', function () {
+    $user = User::factory()->create();
+    $meal1 = Meal::factory()->for($user)->create(['date' => '2024-10-08', 'meal_type' => 'lunch']);
+    $meal2 = Meal::factory()->for($user)->create(['date' => '2024-10-07', 'meal_type' => 'breakfast']);
+    $food = Food::factory()->create();
+    $meal1->foods()->attach($food, ['amount' => 150]);
+    $meal2->foods()->attach($food, ['amount' => 200]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson("/api/meals/{$user->id}?startDate=2024-10-07&endDate=2024-10-08&meal_type=lunch");
+
+    $response->assertStatus(200)
+             ->assertJsonCount(1, 'meals')
+             ->assertJsonFragment(['meal_type' => 'lunch']);
+});
+
+it('returns 404 for non-existent user', function () {
+    Sanctum::actingAs(User::factory()->create());
+
+    $response = $this->getJson('/api/meals/999');
+
+    $response->assertStatus(404)
+             ->assertJson([
+                 'message' => 'User not found.'
+             ]);
+});
+
+it('returns empty meal history for a user with no meals', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson("/api/meals/{$user->id}");
+
+    $response->assertStatus(200)
+             ->assertJson(['meals' => []]);
+});

@@ -2,15 +2,60 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Meal;
 use App\Models\Food;
 use App\Models\MealFood;
 use App\Http\Requests\StoreMealRequest;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class MealController extends Controller
 {
+
+    /**
+     * Retrieve meal history for the authenticated user.
+     *
+     * @param Request $request
+     * @param int $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function retrieve(Request $request, $userId)
+    {
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+        // クエリパラメータを使用して日付や食事タイプでフィルタリング
+        $mealsQuery = Meal::with('foods')
+            ->where('user_id', $userId)
+            ->orderBy('date', 'desc');
+
+        if ($request->has('startDate')) {
+            $mealsQuery->where('date', '>=', $request->query('startDate'));
+        }
+
+        if ($request->has('endDate')) {
+            $mealsQuery->where('date', '<=', $request->query('endDate'));
+        }
+
+        if ($request->has('meal_type')) {
+            $mealsQuery->where('meal_type', $request->query('meal_type'));
+        }
+
+        // 食事履歴を取得
+        $meals = $mealsQuery->get();
+
+        return response()->json([
+            'user_id' => $userId,
+            'meals' => $meals
+        ], 200);
+    }
+
+
     /**
      * Store a newly created meal in storage.
      *
