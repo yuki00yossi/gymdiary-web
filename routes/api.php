@@ -28,4 +28,6 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::get('/workouts', [WorkoutController::class, 'retrieve'])->name('api.workout.retrieve');
     // 保存
     Route::post('/workouts', [WorkoutController::class, 'store'])->name('api.workout.store');
+    // 更新
+    Route::put('/workouts/{workout_id}', [WorkoutController::class, 'update'])->name('api.workout.update');
 });

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetWorkoutRequest;
 use App\Http\Requests\StoreWorkoutRequest;
+use App\Http\Requests\UpdateWorkoutRequest;
 use App\Models\Workout;
+use App\Models\Exercise;
 
 
 class WorkoutController extends Controller
@@ -58,5 +60,40 @@ class WorkoutController extends Controller
         }
 
         return response()->json(['message' => 'Workout created successfully'], 201);
+    }
+
+    /**
+     * Update a workout and its exercises.
+     *
+     * @param UpdateWorkoutRequest $request
+     * @param int $workout_id
+     * @return JsonResponse
+     */
+    public function update(UpdateWorkoutRequest $request, $workout_id)
+    {
+        $workout = Workout::findOrFail($workout_id);
+
+        $workout->update([
+            'date' => $request->date,
+        ]);
+
+        // エクササイズの更新・追加処理
+        foreach ($request->exercises as $exerciseData) {
+            if (isset($exerciseData['id'])) {
+                // 既存のエクササイズを更新
+                $exercise = Exercise::find($exerciseData['id']);
+                if ($exercise) {
+                    $exercise->update($exerciseData);
+                }
+            } else {
+                // 新規エクササイズを追加
+                $workout->exercises()->create($exerciseData);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Workout updated successfully',
+            'data' => $workout->load('exercises'),
+        ], 200);
     }
 }
