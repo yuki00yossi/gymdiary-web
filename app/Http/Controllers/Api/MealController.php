@@ -169,4 +169,37 @@ class MealController extends Controller
 
         return response()->json(['message' => 'Meal updated successfully'], 200);
     }
+
+    /**
+     * Delete the specified meal.
+     *
+     * @param  int  $mealId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($mealId)
+    {
+        // 認証されたユーザーの食事のみ削除可能
+        $meal = Meal::where('id', $mealId)
+                    ->where('user_id', Auth::id())
+                    ->first();
+        $meal = Meal::find($mealId);
+
+        if (!$meal) {
+            return response()->json([
+                'message' => 'Meal not found',
+            ], 404);
+        }
+
+        if ($meal->user_id !== Auth::user()->id) {
+            return response()->json(
+                ['message' => 'You do not have permission to delete this meal'], 403);
+        }
+
+        // 食事を削除
+        $meal->delete();
+
+        return response()->json([
+            'message' => 'Meal deleted successfully'
+        ], 200);
+    }
 }

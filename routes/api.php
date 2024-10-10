@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum',])->group(function () {
     // 更新
     Route::put('/workouts/{workout_id}', [WorkoutController::class, 'update'])->name('api.workout.update');
     // 削除
-    Route::delete('/workouts/{workout_id}', [WorkoutController::class, 'destroy'])->name('api.workout.delete');
+    Route::delete('/workouts/{workout_id}', [WorkoutController::class, 'destroy'])->name('api.workout.destroy');
 
     /** 食事ログ関連のAPI */
     // 取得
@@ -41,4 +41,6 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::post('/meals', [MealController::class, 'store'])->name('api.meal.store');
     // 更新
     Route::put('/meals/{mealId}', [MealController::class, 'update'])->name('api.meal.update');
+    // 削除
+    Route::delete('/meals/{mealId}', [MealController::class, 'destroy'])->name('api.meal.destroy');
 });

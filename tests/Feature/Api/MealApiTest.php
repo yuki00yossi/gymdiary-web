@@ -308,3 +308,46 @@ it('can update a meal with new and modified foods', function () {
     $this->assertDatabaseHas('foods', ['name' => 'Salad']);
     $this->assertDatabaseHas('meal_foods', ['amount' => 200]);
 });
+
+/**
+ * ---------------------------------------------------
+ * Tests for Destroy API.
+ * ---------------------------------------------------
+ */
+it('can delete a meal', function () {
+    $user = User::factory()->create();
+    $meal = Meal::factory()->for($user)->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->deleteJson("/api/meals/{$meal->id}");
+
+    $response->assertStatus(200)
+             ->assertJson(['message' => 'Meal deleted successfully']);
+
+    $this->assertDatabaseMissing('meals', ['id' => $meal->id]);
+});
+
+it('cannot delete another user\'s meal', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+    $meal = Meal::factory()->for($user2)->create();
+
+    Sanctum::actingAs($user1);
+
+    $response = $this->deleteJson("/api/meals/{$meal->id}");
+
+    $response->assertStatus(403)
+             ->assertJson(['message' => 'You do not have permission to delete this meal']);
+});
+
+it('returns 404 for non-existent meal', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->deleteJson('/api/meals/999');
+
+    $response->assertStatus(404)
+             ->assertJson(['message' => 'Meal not found']);
+});
