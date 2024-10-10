@@ -11,8 +11,20 @@ class Workout extends Model
 
     protected $fillable = ['user_id', 'date'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function exercises()
     {
         return $this->hasMany(Exercise::class);
+    }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['workout_id'] = $this->id;  // IDにエイリアスを設定
+        return $array;
     }
 }

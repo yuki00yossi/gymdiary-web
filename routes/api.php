@@ -24,6 +24,8 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::delete('/token', [UserController::class, 'deleteToken'])->name('api.user.token.delete');
 
     /** トレーニングログ関連のAPI */
+    // 取得
+    Route::get('/workouts', [WorkoutController::class, 'retrieve'])->name('api.workout.retrieve');
     // 保存
     Route::post('/workouts', [WorkoutController::class, 'store'])->name('api.workout.store');
 });

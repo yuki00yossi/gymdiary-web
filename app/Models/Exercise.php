@@ -17,4 +17,11 @@ class Exercise extends Model
     {
         return $this->belongsTo(Workout::class);
     }
+
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['exercise_id'] = $this->id;  // IDにエイリアスを設定
+        return $array;
+    }
 }

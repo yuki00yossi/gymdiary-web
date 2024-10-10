@@ -5,6 +5,7 @@
 
 use App\Models\User;
 use App\Models\Workout;
+use App\Models\Exercise;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 
@@ -291,4 +292,138 @@ it('can create a workout with a repetition_based exercise', function () {
         'comment' => 'Good push-ups session',
         'type' => 'repetition_based',
     ]);
+});
+
+
+/**
+ * ---------------------------------------------------
+ * Tests for Retrieve API.
+ * ---------------------------------------------------
+ */
+it('can retrieve all workouts for a user', function () {
+    $user = User::factory()->create();
+
+    Workout::factory()
+        ->count(3)
+        ->for($user)
+        ->has(Exercise::factory()->count(2))
+        ->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id);
+
+    $response->assertStatus(200)
+             ->assertJsonStructure([
+                'message',
+                'data' => [
+                    '*' => [
+                        'workout_id',
+                        'user_id',
+                        'date',
+                        'exercises' => [
+                            '*' => [
+                                'exercise_id',
+                                'name',
+                                'type',
+                                'sets',
+                                'reps',
+                                'weight',
+                                'calories',
+                                'comment'
+                            ]
+                        ]
+                    ]
+                ]
+             ]);
+});
+
+it('can retrieve workouts filtered by date', function () {
+    $user = User::factory()->create();
+
+    Workout::factory()->for($user)->has(Exercise::factory()->count(2))->create(['date' => '2024-10-08']);
+    Workout::factory()->for($user)->has(Exercise::factory()->count(2))->create(['date' => '2024-10-09']);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&date=2024-10-08');
+
+    $response->assertStatus(200)
+             ->assertJsonCount(1, 'data')
+             ->assertJsonFragment(['date' => '2024-10-08']);
+});
+
+it('can retrieve workouts filtered by exercise type', function () {
+    $user = User::factory()->create();
+
+    Workout::factory()->for($user)->has(Exercise::factory()->count(2)->state(['type' => 'repetition_based']))->create();
+    Workout::factory()->for($user)->has(Exercise::factory()->count(2)->state(['type' => 'time_based']))->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&exercise_type=repetition_based');
+
+    $response->assertStatus(200)
+             ->assertJsonFragment(['type' => 'repetition_based']);
+});
+
+it('fails if user_id is missing', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts');
+
+    $response->assertStatus(422)
+             ->assertJson([
+                'message' => 'The user ID is required.',
+                'errors' => [
+                    'user_id' => ['The user ID is required.']
+                ]
+             ]);
+});
+
+it('fails if date is in an invalid format', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&date=2024/10/08'); // Invalid date format
+
+    $response->assertStatus(422)
+             ->assertJson([
+                'message' => 'The date must be in YYYY-MM-DD format.',
+                'errors' => [
+                    'date' => ['The date must be in YYYY-MM-DD format.']
+                ]
+             ]);
+});
+
+it('fails if exercise_type is invalid', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&exercise_type=invalid_type'); // Invalid exercise type
+
+    $response->assertStatus(422)
+             ->assertJson([
+                'message' => 'The exercise type must be one of time_based, distance_based, time_distance_based, or repetition_based.',
+                'errors' => [
+                    'exercise_type' => ['The exercise type must be one of time_based, distance_based, time_distance_based, or repetition_based.']
+                ]
+             ]);
+});
+
+it('returns 404 if no workouts are found', function () {
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/workouts?user_id=' . $user->id);
+
+    $response->assertStatus(404)
+             ->assertJson([
+                'message' => 'No workout records found for the given user.'
+             ]);
 });
