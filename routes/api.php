@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiRegisterUserController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WorkoutController;
+use App\Http\Controllers\Api\MealController;
 
 // 会員登録
 Route::post('/user', [UserController::class, 'store'])->name('api.user.store');
@@ -32,4 +33,8 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::put('/workouts/{workout_id}', [WorkoutController::class, 'update'])->name('api.workout.update');
     // 削除
     Route::delete('/workouts/{workout_id}', [WorkoutController::class, 'destroy'])->name('api.workout.delete');
+
+    /** 食事ログ関連のAPI */
+    // 保存
+    Route::post('/meals', [MealController::class, 'store'])->name('api.meal.store');
 });
