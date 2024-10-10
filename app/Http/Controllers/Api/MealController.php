@@ -8,8 +8,9 @@ use App\Models\User;
 use App\Models\Meal;
 use App\Models\Food;
 use App\Models\MealFood;
-use App\Http\Requests\StoreMealRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMealRequest;
+use App\Http\Requests\UpdateMealRequest;
 
 class MealController extends Controller
 {
@@ -97,5 +98,75 @@ class MealController extends Controller
         }
 
         return response()->json(['message' => 'Meal created successfully'], 201);
+    }
+
+    /**
+     * Update the specified meal in storage.
+     *
+     * @param  UpdateMealRequest  $request
+     * @param  int  $mealId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(UpdateMealRequest $request, $mealId)
+    {
+        // 認証されたユーザーの食事のみ更新可能
+        $meal = Meal::where('id', $mealId)->where('user_id', Auth::id())->first();
+
+        if (!$meal) {
+            return response()->json(['message' => 'Meal not found'], 404);
+        }
+
+        // 食事の基本情報を更新
+        $meal->update([
+            'date' => $request->date,
+            'meal_type' => $request->meal_type,
+        ]);
+
+        // 現在の食品データを削除し、新しい食品データに差し替える
+        $meal->foods()->detach();
+
+        foreach ($request->foods as $foodData) {
+            // 食品情報の変更がある場合は新しい食品を作成
+            if (isset($foodData['food_id'])) {
+                $existingFood = Food::find($foodData['food_id']);
+
+                // カロリーなどの情報が異なる場合は新しい食品を作成
+                if ($existingFood->calories != $foodData['calories'] ||
+                    $existingFood->protein != ($foodData['protein'] ?? 0) ||
+                    $existingFood->carbs != ($foodData['carbs'] ?? 0) ||
+                    $existingFood->fats != ($foodData['fats'] ?? 0)) {
+
+                    // 新しい食品を作成
+                    $food = Food::create([
+                        'name' => $existingFood->name,
+                        'calories' => $foodData['calories'],
+                        'protein' => $foodData['protein'] ?? 0,
+                        'carbs' => $foodData['carbs'] ?? 0,
+                        'fats' => $foodData['fats'] ?? 0,
+                    ]);
+                } else {
+                    // 既存の食品をそのまま使用
+                    $food = $existingFood;
+                }
+            } else {
+                // 新しい食品の作成
+                $food = Food::create([
+                    'name' => $foodData['name'],
+                    'calories' => $foodData['calories'],
+                    'protein' => $foodData['protein'] ?? 0,
+                    'carbs' => $foodData['carbs'] ?? 0,
+                    'fats' => $foodData['fats'] ?? 0,
+                ]);
+            }
+
+            // 食事と食品を関連付け
+            MealFood::create([
+                'meal_id' => $meal->id,
+                'food_id' => $food->id,
+                'amount' => $foodData['amount'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Meal updated successfully'], 200);
     }
 }

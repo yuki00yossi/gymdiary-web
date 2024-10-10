@@ -39,4 +39,6 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::get('/meals/{userId}', [MealController::class, 'retrieve'])->name('api.meal.retrieve');
     // 保存
     Route::post('/meals', [MealController::class, 'store'])->name('api.meal.store');
+    // 更新
+    Route::put('/meals/{mealId}', [MealController::class, 'update'])->name('api.meal.update');
 });

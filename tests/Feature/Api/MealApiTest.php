@@ -265,3 +265,46 @@ it('returns empty meal history for a user with no meals', function () {
     $response->assertStatus(200)
              ->assertJson(['meals' => []]);
 });
+
+
+/**
+ * ---------------------------------------------------
+ * Tests for Update API.
+ * ---------------------------------------------------
+ */
+it('can update a meal with new and modified foods', function () {
+    $user = User::factory()->create();
+    $meal = Meal::factory()->for($user)->create();
+    $existingFood = Food::factory()->create();
+    $meal->foods()->attach($existingFood->id, ['amount' => 150]);
+
+    Sanctum::actingAs($user);
+
+    $response = $this->putJson("/api/meals/{$meal->id}", [
+        'date' => '2024-10-10 08:00:00',
+        'meal_type' => 'lunch',
+        'foods' => [
+            [
+                'food_id' => $existingFood->id,
+                'amount' => 200,
+                'calories' => $existingFood->calories + 50 // Modify the calories
+            ],
+            [
+                'name' => 'Salad',
+                'calories' => 100,
+                'protein' => 5,
+                'carbs' => 10,
+                'fats' => 2,
+                'amount' => 100,
+            ]
+        ]
+    ]);
+
+    $response->assertStatus(200)
+             ->assertJson(['message' => 'Meal updated successfully']);
+
+    // 新しい食品レコードが作成されていることを確認
+    $this->assertDatabaseHas('foods', ['calories' => $existingFood->calories + 50]);
+    $this->assertDatabaseHas('foods', ['name' => 'Salad']);
+    $this->assertDatabaseHas('meal_foods', ['amount' => 200]);
+});
