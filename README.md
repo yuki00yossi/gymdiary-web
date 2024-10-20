@@ -30,12 +30,12 @@ To set up the project locally for development or learning purposes using Laravel
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/gym-diary-backend.git
+    git clone https://github.com/yuki00yossi/gymdiary-web.git
     ```
 
 2. Navigate to the project directory:
     ```bash
-    cd gym-diary-backend
+    cd gymdiary-web
     ```
 
 3. Install dependencies:
