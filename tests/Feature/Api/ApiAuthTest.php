@@ -23,7 +23,7 @@ it('can register a new user successfully', function () {
         'name' => 'Test User',
         'email' => 'testuser@example.com',
         'username' => 'testuser',
-        'password' => 'SecurePassword123!',
+        'password' => 'SecureUiakPassword123!',
     ];
 
     // APIを呼び出し
@@ -50,7 +50,7 @@ it('can register a new user successfully', function () {
 
     // パスワードがハッシュ化されて保存されていることを確認
     $user = User::where('email', 'testuser@example.com')->first();
-    expect(Hash::check('SecurePassword123!', $user->password))->toBeTrue();
+    expect(Hash::check($userData['password'], $user->password))->toBeTrue();
 });
 
 it('fails if required fields are missing', function () {
