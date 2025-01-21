@@ -61,6 +61,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
           sudo su ${{ secrets.EXEC_USER }}
+          source ~/.bashrc
           cd ${{ secrets.APP_PATH }}
           git pull origin main
           composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -70,6 +71,7 @@ jobs:
           php artisan view:cache
           composer dump-autoload --optimize -o
 
+          npm ci
           npm install
           npm run build
           exit
