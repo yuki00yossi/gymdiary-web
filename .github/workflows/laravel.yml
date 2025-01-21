@@ -8,7 +8,6 @@ jobs:
   laravel-tests:
 
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
@@ -47,6 +46,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: laravel-tests
+    environment: production
 
     steps:
       - name: Checkout Code
