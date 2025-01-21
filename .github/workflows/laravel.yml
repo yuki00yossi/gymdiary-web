@@ -68,7 +68,7 @@ jobs:
           php artisan optimize:clear
           php artisan optimize
           php artisan view:cache
-          composer dump-autoload --optimize(-o)
+          composer dump-autoload --optimize -o
 
           npm install
           npm run build
