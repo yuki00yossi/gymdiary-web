@@ -21,6 +21,9 @@ Route::middleware(['auth:sanctum',])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
+
+    // ユーザーを有効化するAPI
+    Route::post('/email/verify', [UserController::class, 'verify_email'])->name('api.user.email.verify');
     // ログアウト（トークン削除）
     Route::delete('/token', [UserController::class, 'deleteToken'])->name('api.user.token.delete');
 

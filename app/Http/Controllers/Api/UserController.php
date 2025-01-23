@@ -58,4 +58,31 @@ class UserController extends Controller
 
         return response()->json($user, 201);
     }
+
+    /**
+     * 会員有効化（メアド検証）API
+     *
+     * @param Illuminate\Http\Request; $request HTTPリクエストオブジェクト
+     *
+     * @return \Illuminate\Http\JsonResponse 新規ユーザーのデータを含むJSONレスポンス
+     *
+     * @throws \Illuminate\Validation\ValidationException バリデーションエラー時にスローされる。
+     */
+    public function verify_email(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => ['bail', 'required', 'integer'],
+        ]);
+
+        if ($request->user()->isMailVerificationCodeValid($validated['code'])) {
+            $request->user()->markEmailAsVerified();
+
+            return response()->json([
+                'email' => $request->user()->email,
+                'msg' => 'success',
+            ], 200);
+        }
+
+        return response()->json('not valid', 400);
+    }
 }

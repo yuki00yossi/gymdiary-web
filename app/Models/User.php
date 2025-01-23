@@ -47,7 +47,7 @@ class User extends Authenticatable
     public function isMailVerificationCodeValid($code)
     {
         return $this->mail_verification_code === $code &&
-            $this->verification_code_expires_at &&
+            $this->mail_verification_code_expires_at &&
             $this->mail_verification_code_expires_at->isFuture();
     }
 

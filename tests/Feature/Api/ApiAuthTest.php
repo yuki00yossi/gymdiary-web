@@ -229,6 +229,60 @@ it('sent verification mail successfully.', function () {
     });
 });
 
+/**
+ * ----------------------------------------------------------------
+ * 会員有効化（メアド検証）API
+ * ----------------------------------------------------------------
+ */
+it('verifies email successfully with valid code.', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+    $user->generateMailVerificationCode();
+
+    $response = $this->actingAs($user)->postJson('/api/email/verify', [
+        'code' => $user->mail_verification_code,
+    ]);
+
+    $response->assertStatus(200)
+             ->assertJson([
+                 'email' => $user->email,
+                 'msg' => 'success',
+             ]);
+
+    $this->assertTrue($user->fresh()->hasVerifiedEmail());
+});
+
+it('fails to verify email with invalid code.', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+
+    $user->generateMailVerificationCode();
+
+    $response = $this->actingAs($user)->postJson('/api/email/verify', [
+        'code' => 123456, // 無効なコード
+    ]);
+
+    $response->assertStatus(400)
+             ->assertExactJson([
+                 'not valid',
+             ]);
+
+    $this->assertFalse($user->fresh()->hasVerifiedEmail());
+});
+
+it('fails to verify email without providing a code.', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+
+    $response = $this->actingAs($user)->postJson('/api/email/verify', []);
+
+    $response->assertStatus(422)
+             ->assertJsonValidationErrors(['code']);
+});
+
 
 
 /**
