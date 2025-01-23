@@ -283,6 +283,16 @@ it('fails to verify email without providing a code.', function () {
              ->assertJsonValidationErrors(['code']);
 });
 
+it('fails to verify email without login.', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+
+    $response = $this->postJson('/api/email/verify', []);
+
+    $response->assertStatus(401);
+});
+
 
 
 /**
