@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\SignupRequest;
 use App\Models\User;
+
+use App\Mail\MailVerificationCodeMail;
 
 class UserController extends Controller
 {
@@ -20,13 +24,13 @@ class UserController extends Controller
      * リクエストには`username`、`email`、`name`、および`password`が必要。
      * 成功時には、新規ユーザーの情報を含むJSONレスポンスを返す。
      *
-     * @param \Illuminate\Http\Request $request HTTPリクエストオブジェクト
+     * @param App\Http\Requests\Auth\SignupRequest $request HTTPリクエストオブジェクト
      *
      * @return \Illuminate\Http\JsonResponse 新規ユーザーのデータを含むJSONレスポンス
      *
      * @throws \Illuminate\Validation\ValidationException バリデーションエラー時にスローされる。
      */
-    public function store(Request $request)
+    public function store(SignupRequest $request)
     {
         $request->validate([
             'username' => ['bail', 'required', 'string', 'lowercase', 'max:255', 'unique:'.User::class],
@@ -44,58 +48,14 @@ class UserController extends Controller
 
         event(new Registered($user));
 
+        $request->authenticate();
+        $request->session()->regenerate();
+
+        // メアド確認コードの記載したメール送信
+        $user->generateMailVerificationCode();
+        Mail::to($user->email)
+            ->send(new MailVerificationCodeMail($user->mail_verification_code, User::MAIL_VERIFY_CODE_EXPIRE_TIME));
+
         return response()->json($user, 201);
-    }
-
-    /**
-     * ユーザーのログインを行い、アクセストークンを発行
-     *
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\JsonResponse
-     *
-     * @throws \Illuminate\Validation\ValidationException バリデーションエラー時にスロー
-     */
-    public function token(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        // ユーザーの認証
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'ログイン情報が正しくありません。'
-            ], 401);
-        }
-
-        // トークンを発行
-        $token = $user->createToken('gym-diary-token')->plainTextToken;
-
-        // 成功レスポンスを返す
-        return response()->json([
-            'message' => 'You are loged in!',
-            'token' => $token
-        ], 200);
-    }
-
-    /**
-     * 認証済みユーザーのトークンを無効化してログアウト
-     *
-     * @param Request $request HTTPリクエストオブジェクト
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function deleteToken(Request $request)
-    {
-        // 認証済みユーザーのトークンを削除
-        $request->user()->tokens()->delete();
-
-        return response()->json([
-            'message' => 'Deleted token successfully.'
-        ], 200);
     }
 }

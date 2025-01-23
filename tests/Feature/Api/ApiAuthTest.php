@@ -9,6 +9,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rules;
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Mail;
+
+use App\Mail\MailVerificationCodeMail;
 
 /**
  * ----------------------------------------------------------------
@@ -27,7 +30,7 @@ it('can register a new user successfully', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード201かを確認
     $response->assertStatus(201);
@@ -58,7 +61,7 @@ it('fails if required fields are missing', function () {
     $userData = [];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認（バリデーションエラー）
     $response->assertStatus(422);
@@ -77,7 +80,7 @@ it('fails if email is invalid', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -102,7 +105,7 @@ it('fails if username or email is already taken', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -121,7 +124,7 @@ it('fails if password does not meet strength requirements', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -140,7 +143,7 @@ it('fails if username has uppercase letters', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -159,7 +162,7 @@ it('fails if username exceeds max length', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -178,7 +181,7 @@ it('fails if email exceeds max length', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
@@ -197,13 +200,33 @@ it('fails if name exceeds max length', function () {
     ];
 
     // APIを呼び出し
-    $response = $this->postJSON('/api/user', $userData);
+    $response = $this->postJSON('/user/signup', $userData);
 
     // ステータスコード422かを確認
     $response->assertStatus(422);
 
     // nameフィールドのバリデーションエラーメッセージを確認
     $response->assertJsonValidationErrors(['name']);
+});
+
+it('sent verification mail successfully.', function () {
+    Mail::fake();
+    $userData = [
+        'name' => 'test',
+        'email' => 'testuser@example.com',
+        'username' => 'testuser',
+        'password' => 'SecureUiakPassword123!',
+    ];
+
+    // APIを呼び出し
+    $response = $this->postJSON('/user/signup', $userData);
+    $user = User::where('email', $userData['email'])->get();
+
+    // 確認メールが正しく飛んでいるか確認
+    Mail::assertSent(MailVerificationCodeMail::class, function ($mail) use ($user) {
+        return $mail->to[0]['address'] == $user[0]->email &&
+            $mail->code == $user[0]->mail_verification_code;
+    });
 });
 
 
@@ -216,80 +239,14 @@ it('fails if name exceeds max length', function () {
 /**
  * ログインAPIの成功テスト
  */
-it('logs in a user successfully and issues a token', function () {
-    // テスト用のユーザー作成
-    $user = User::factory()->create([
-        'email' => 'testuser@example.com',
-        'password' => Hash::make('password123'), // ハッシュされたパスワード
-    ]);
-
-    // 正しい認証情報でAPIリクエストを送信
-    $response = $this->postJson('/api/token', [
-        'email' => 'testuser@example.com',
-        'password' => 'password123'
-    ]);
-
-    // ステータス200を期待し、トークンを含むレスポンスを確認
-    $response->assertStatus(200)
-        ->assertJsonStructure([
-            'message',
-            'token',
-        ]);
-});
 
 /**
  * 誤ったパスワードでのログイン失敗テスト
  */
-it('fails to log in with wrong password', function () {
-    // テスト用のユーザー作成
-    $user = User::factory()->create([
-        'email' => 'testuser@example.com',
-        'password' => Hash::make('password123'),
-    ]);
-
-    // 誤ったパスワードでAPIリクエストを送信
-    $response = $this->postJson('/api/token', [
-        'email' => 'testuser@example.com',
-        'password' => 'wrongpassword'
-    ]);
-
-    // 認証失敗を確認し、ステータス401が返されることを確認
-    $response->assertStatus(401)
-        ->assertJson([
-            'message' => 'ログイン情報が正しくありません。'
-        ]);
-});
 
 /**
  * 存在しないユーザーでのログイン失敗テスト
  */
-it('fails to log in with non-existent user', function () {
-    // 存在しないユーザーの情報でAPIリクエストを送信
-    $response = $this->postJson('/api/token', [
-        'email' => 'nonexistent@example.com',
-        'password' => 'password123'
-    ]);
-
-    // 認証失敗を確認し、ステータス401が返されることを確認
-    $response->assertStatus(401)
-        ->assertJson([
-            'message' => 'ログイン情報が正しくありません。'
-        ]);
-});
-
-/**
- * バリデーションエラーテスト（必須項目の不足）
- */
-it('fails to log in when email or password is missing', function () {
-    // パスワードが欠けているリクエスト送信
-    $response = $this->postJson('/api/token', [
-        'email' => 'testuser@example.com'
-    ]);
-
-    // ステータス422を期待し、バリデーションエラーを確認
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors(['password']);
-});
 
 
 /**
@@ -301,30 +258,7 @@ it('fails to log in when email or password is missing', function () {
 /**
  * ログアウトのテスト
  */
-it('logs out the authenticated user successfully', function () {
-    // 認証済みユーザーを作成
-    $user = User::factory()->create();
-
-    // Sanctumを利用してユーザーを認証
-    Sanctum::actingAs($user);
-
-    // ログアウトAPIリクエスト送信
-    $response = $this->deleteJson('/api/token');
-
-    // ステータス200を期待し、ログアウト成功メッセージを確認
-    $response->assertStatus(200)
-        ->assertJson([
-            'message' => 'Deleted token successfully.'
-        ]);
-});
 
 /**
  * 未認証状態でのログアウトテスト
  */
-it('fails to log out when not authenticated', function () {
-    // 認証なしでログアウトリクエスト送信
-    $response = $this->deleteJson('/api/token');
-
-    // 認証エラーを期待
-    $response->assertStatus(401);
-});
