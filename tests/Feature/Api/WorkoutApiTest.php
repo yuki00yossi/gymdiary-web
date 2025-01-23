@@ -19,7 +19,7 @@ uses(RefreshDatabase::class);
 it('can successfully create a workout with valid data', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -44,7 +44,7 @@ it('can successfully create a workout with valid data', function () {
 it('fails if required fields are missing', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -64,7 +64,7 @@ it('fails if required fields are missing', function () {
 it('fails if invalid data types are provided', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -95,7 +95,7 @@ it('fails if invalid data types are provided', function () {
 it('can create a workout with optional fields missing', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -118,7 +118,7 @@ it('can create a workout with optional fields missing', function () {
 it('fails if user_id does not exist', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => 9999,  // Non-existent user ID
@@ -168,7 +168,7 @@ it('fails if the user is not authenticated', function () {
 it('can create a workout with a time_based exercise', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -199,7 +199,7 @@ it('can create a workout with a time_based exercise', function () {
 it('can create a workout with a distance_based exercise', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -230,7 +230,7 @@ it('can create a workout with a distance_based exercise', function () {
 it('can create a workout with a time_distance_based exercise', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -263,7 +263,7 @@ it('can create a workout with a time_distance_based exercise', function () {
 it('can create a workout with a repetition_based exercise', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/workouts', [
         'user_id' => $user->id,
@@ -309,7 +309,7 @@ it('can retrieve all workouts for a user', function () {
         ->has(Exercise::factory()->count(2))
         ->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id);
 
@@ -344,7 +344,7 @@ it('can retrieve workouts filtered by date', function () {
     Workout::factory()->for($user)->has(Exercise::factory()->count(2))->create(['date' => '2024-10-08']);
     Workout::factory()->for($user)->has(Exercise::factory()->count(2))->create(['date' => '2024-10-09']);
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&date=2024-10-08');
 
@@ -359,7 +359,7 @@ it('can retrieve workouts filtered by exercise type', function () {
     Workout::factory()->for($user)->has(Exercise::factory()->count(2)->state(['type' => 'repetition_based']))->create();
     Workout::factory()->for($user)->has(Exercise::factory()->count(2)->state(['type' => 'time_based']))->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&exercise_type=repetition_based');
 
@@ -370,7 +370,7 @@ it('can retrieve workouts filtered by exercise type', function () {
 it('fails if user_id is missing', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts');
 
@@ -386,7 +386,7 @@ it('fails if user_id is missing', function () {
 it('fails if date is in an invalid format', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&date=2024/10/08'); // Invalid date format
 
@@ -402,7 +402,7 @@ it('fails if date is in an invalid format', function () {
 it('fails if exercise_type is invalid', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id . '&exercise_type=invalid_type'); // Invalid exercise type
 
@@ -418,7 +418,7 @@ it('fails if exercise_type is invalid', function () {
 it('returns 404 if no workouts are found', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson('/api/workouts?user_id=' . $user->id);
 
@@ -439,7 +439,7 @@ it('can update a workout with valid data', function () {
     $workout = Workout::factory()->for($user)->create();
     $exercise = Exercise::factory()->for($workout)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -481,7 +481,7 @@ it('can add a new exercise to a workout', function () {
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -521,7 +521,7 @@ it('fails if the user tries to update another user\'s workout', function () {
 
     $workout = Workout::factory()->for($user1)->create();
 
-    Sanctum::actingAs($user2);
+    $this->actingAs($user2);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user2->id,
@@ -549,7 +549,7 @@ it('fails if required fields are missing for update', function () {
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -570,7 +570,7 @@ it('fails if the date format is invalid', function () {
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -599,7 +599,7 @@ it('fails if exercise type is invalid', function () {
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -628,7 +628,7 @@ it('fails if sets and reps are missing for repetition_based exercise', function 
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson('/api/workouts/' . $workout->id, [
         'user_id' => $user->id,
@@ -662,7 +662,7 @@ it('can delete a workout', function () {
     $user = User::factory()->create();
     $workout = Workout::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->deleteJson('/api/workouts/' . $workout->id);
 
@@ -678,7 +678,7 @@ it('fails if the user tries to delete another user\'s workout', function () {
 
     $workout = Workout::factory()->for($user1)->create();
 
-    Sanctum::actingAs($user2);
+    $this->actingAs($user2);
 
     $response = $this->deleteJson('/api/workouts/' . $workout->id);
 
@@ -689,7 +689,7 @@ it('fails if the user tries to delete another user\'s workout', function () {
 it('returns 404 if workout is not found', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->deleteJson('/api/workouts/999'); // Non-existent workout ID
 

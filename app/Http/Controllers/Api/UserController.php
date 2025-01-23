@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -84,5 +85,24 @@ class UserController extends Controller
         }
 
         return response()->json('not valid', 400);
+    }
+
+    /**
+     * ログアウトAPI
+     *
+     * @param Illuminate\Http\Request; $request HTTPリクエストオブジェクト
+     *
+     * @return \Illuminate\Http\JsonResponse 新規ユーザーのデータを含むJSONレスポンス
+     */
+    public function signout(Request $request)
+    {
+        Auth::guard('web')->logout();
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        return response()->json('signouted', 200);
     }
 }

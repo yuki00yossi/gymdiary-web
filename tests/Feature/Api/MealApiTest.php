@@ -20,7 +20,7 @@ it('can create a meal with existing and new foods', function () {
     $user = User::factory()->create();
     $existingFood = Food::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -53,7 +53,7 @@ it('can create a meal with only existing foods', function () {
     $user = User::factory()->create();
     $existingFood = Food::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -76,7 +76,7 @@ it('can create a meal with only existing foods', function () {
 it('can create a meal with only new foods', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -110,7 +110,7 @@ it('fails to create a meal if unauthenticated', function () {
 it('fails if required fields are missing', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -130,7 +130,7 @@ it('fails if required fields are missing', function () {
 it('fails if the date format is invalid', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '10-10-2024 12:00:00', // Invalid date format
@@ -151,7 +151,7 @@ it('fails if the date format is invalid', function () {
 it('fails if calories or amount is negative', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -172,7 +172,7 @@ it('fails if calories or amount is negative', function () {
 it('fails if a non-existent food_id is provided', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->postJson('/api/meals', [
         'date' => '2024-10-10 12:00:00',
@@ -201,7 +201,7 @@ it('can retrieve meal history for authenticated user', function () {
     $food = Food::factory()->create();
     $meal->foods()->attach($food, ['amount' => 100]);
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson("/api/meals/{$user->id}");
 
@@ -235,7 +235,7 @@ it('filters meal history by date and meal_type', function () {
     $meal1->foods()->attach($food, ['amount' => 150]);
     $meal2->foods()->attach($food, ['amount' => 200]);
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson("/api/meals/{$user->id}?startDate=2024-10-07&endDate=2024-10-08&meal_type=lunch");
 
@@ -245,7 +245,7 @@ it('filters meal history by date and meal_type', function () {
 });
 
 it('returns 404 for non-existent user', function () {
-    Sanctum::actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create());
 
     $response = $this->getJson('/api/meals/999');
 
@@ -258,7 +258,7 @@ it('returns 404 for non-existent user', function () {
 it('returns empty meal history for a user with no meals', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->getJson("/api/meals/{$user->id}");
 
@@ -278,7 +278,7 @@ it('can update a meal with new and modified foods', function () {
     $existingFood = Food::factory()->create();
     $meal->foods()->attach($existingFood->id, ['amount' => 150]);
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->putJson("/api/meals/{$meal->id}", [
         'date' => '2024-10-10 08:00:00',
@@ -318,7 +318,7 @@ it('can delete a meal', function () {
     $user = User::factory()->create();
     $meal = Meal::factory()->for($user)->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->deleteJson("/api/meals/{$meal->id}");
 
@@ -333,7 +333,7 @@ it('cannot delete another user\'s meal', function () {
     $user2 = User::factory()->create();
     $meal = Meal::factory()->for($user2)->create();
 
-    Sanctum::actingAs($user1);
+    $this->actingAs($user1);
 
     $response = $this->deleteJson("/api/meals/{$meal->id}");
 
@@ -344,7 +344,7 @@ it('cannot delete another user\'s meal', function () {
 it('returns 404 for non-existent meal', function () {
     $user = User::factory()->create();
 
-    Sanctum::actingAs($user);
+    $this->actingAs($user);
 
     $response = $this->deleteJson('/api/meals/999');
 

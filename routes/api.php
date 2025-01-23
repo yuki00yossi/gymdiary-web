@@ -16,7 +16,7 @@ Route::post('/token', [UserController::class, 'token'])->name('api.user.token');
 /**
  * 認証必須API
  */
-Route::middleware(['auth:sanctum',])->group(function () {
+Route::middleware(['auth:web',])->group(function () {
     // ユーザー情報を返すAPI
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -24,8 +24,10 @@ Route::middleware(['auth:sanctum',])->group(function () {
 
     // ユーザーを有効化するAPI
     Route::post('/email/verify', [UserController::class, 'verify_email'])->name('api.user.email.verify');
+    // ログアウトするAPI
+    Route::post('/signout', [UserController::class, 'signout'])->name('api.signout');
     // ログアウト（トークン削除）
-    Route::delete('/token', [UserController::class, 'deleteToken'])->name('api.user.token.delete');
+    // Route::delete('/token', [UserController::class, 'deleteToken'])->name('api.user.token.delete');
 
     /** トレーニングログ関連のAPI */
     // 取得

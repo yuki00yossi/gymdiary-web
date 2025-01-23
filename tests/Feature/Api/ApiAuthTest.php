@@ -295,6 +295,56 @@ it('fails to verify email without login.', function () {
 
 
 
+
+
+/**
+ * ----------------------------------------------------------------
+ * ログアウトAPI
+ * ----------------------------------------------------------------
+ */
+// 正常にログアウトできることを確認
+it('logs out a user successfully.', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = $this->postJson('/api/signout');
+
+    // ステータスコード200とレスポンス内容を確認
+    $response->assertStatus(200)
+             ->assertExactJson(['signouted']);
+
+    // ユーザーが認証解除されていることを確認
+    $this->assertGuest();
+});
+
+// 未認証状態でログアウトAPIを呼び出した場合の動作を確認
+it('does nothing when unauthenticated user attempts to log out.', function () {
+    // 認証されていない状態でAPIを呼び出し
+    $response = $this->postJson('/api/signout');
+
+    $response->assertStatus(401);
+
+    $this->assertGuest();
+});
+
+// セッションが無効化された状態でログアウトAPIを呼び出してもエラーにならないことを確認
+it('handles logout when session is already invalidated.', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    // 初回のログアウトAPIを呼び出し
+    $this->postJson('/api/signout');
+
+    // セッションが無効化された状態で再度ログアウトAPIを呼び出し
+    $response = $this->postJson('/api/signout');
+
+    // ステータスコード200とレスポンス内容を確認
+    $response->assertStatus(401);
+});
+
+
 /**
  * ----------------------------------------------------------------
  * ログイン（トークン発行）API
