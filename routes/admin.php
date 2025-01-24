@@ -9,12 +9,17 @@ use App\Http\Controllers\Admin;
 Route::prefix('admin')->group(function () {
     Route::get('login', [Admin\AuthController::class, 'create'])->name('admin.login');
     Route::post('login', [Admin\AuthController::class, 'store'])->name('admin.login.store');
-    // Route::get('logout', [Admin\LoginController::class, 'logout'])->name('admin.login.logout');
 
+    // 要認証
     Route::middleware(['auth:admin'])->group(function () {
         Route::get('/', [Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+        // ユーザー管理関連
+        Route::prefix('users')->group(function () {
+            Route::get('admin', [Admin\UserController::class, 'show'])->name('admin.user.admin.show');
+            Route::get('admin/{id}', [Admin\UserController::class, 'detail'])->name('admin.user.admin.detail');
+        });
+
         Route::post('logout', [Admin\AuthController::class, 'destroy'])->name('admin.logout');
     });
-
-    // Route::get('/',[Admin\AdminController::class, 'dashboard'])->name('admin.dashboard');
 });

@@ -1,26 +1,25 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<div
+    class="bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+    <a href="{{ route('admin.dashboard') }}" class="text-white flex items-center space-x-2 px-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span class="text-2xl font-extrabold">Gym Diary</span>
+    </a>
 
-        <title>管理画面｜{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
-</html>
+    <nav>
+        <a href="{{ route('admin.dashboard') }}"
+            class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+            Dashboard
+        </a>
+        <a href="" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+            Users
+        </a>
+        <a href="" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+            Training Logs
+        </a>
+        <a href="" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+            Settings
+        </a>
+    </nav>
+</div>
