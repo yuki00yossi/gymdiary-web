@@ -16,8 +16,11 @@ Route::prefix('admin')->group(function () {
 
         // ユーザー管理関連
         Route::prefix('users')->group(function () {
-            Route::get('admin', [Admin\UserController::class, 'show'])->name('admin.user.admin.show');
-            Route::get('admin/{id}', [Admin\UserController::class, 'detail'])->name('admin.user.admin.detail');
+            Route::get('admin', [Admin\AdminController::class, 'show'])->name('admin.user.admin.show');
+            Route::get('admin/{id}', [Admin\AdminController::class, 'detail'])->name('admin.user.admin.detail');
+
+            Route::get('user', [Admin\UserController::class, 'show'])->name('admin.user.admin.show');
+            Route::get('user/{id}', [Admin\UserController::class, 'detail'])->name('admin.user.admin.detail');
         });
 
         Route::post('logout', [Admin\AuthController::class, 'destroy'])->name('admin.logout');

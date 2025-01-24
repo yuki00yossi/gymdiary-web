@@ -1,8 +1,8 @@
 @extends('layouts.admin')
 
-@section('title', '管理者一覧')
+@section('title', 'ユーザー一覧')
 
-@section('header', '管理者一覧')
+@section('header', 'ユーザー一覧')
 
 @section('content')
     <ul role="list" class="divide-y divide-gray-100">
