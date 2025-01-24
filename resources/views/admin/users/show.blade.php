@@ -7,7 +7,13 @@
 @section('content')
     <ul role="list" class="divide-y divide-gray-100">
         @foreach ($users as $user)
-            <li class="flex justify-between gap-x-6 py-5">
+            @if (Route::currentRouteName() === 'admin.users.user.show')
+                <a href="{{ route('admin.users.user.detail', ['id' => $user->id]) }}">
+                @elseif (Route::currentRouteName() === 'admin.users.admin.show')
+                    <a href="{{ route('admin.users.admin.detail', ['id' => $user->id]) }}">
+            @endif
+            <li
+                class="flex justify-between gap-x-6 py-5 px-3 rounded cursor-pointer transition-shadow duration-150 hover:shadow-xl ">
                 <div class="flex min-w-0 gap-x-4">
                     <img class="size-12 flex-none rounded-full bg-gray-50"
                         src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
@@ -28,6 +34,7 @@
                             datetime="2023-01-23T13:23Z">{{ $user->updated_at }}</time></p>
                 </div>
             </li>
+            </a>
         @endforeach
     </ul>
 

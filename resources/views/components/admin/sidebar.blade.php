@@ -14,13 +14,13 @@
             class="block cursor-pointer py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
             Users
             <div class="hidden">
-                <a href=""
+                <a href="{{ route('admin.users.admin.show') }}"
                     class="block py-2.5 px-4 rounded transition duratition-200 hover:bg-gray-500 hover:text-white">管理ユーザー
                 </a>
-                <a href=""
+                <a href="#"
                     class="block py-2.5 px-4 rounded transition duratition-200 hover:bg-gray-500 hover:text-white">トレーナー
                 </a>
-                <a href=""
+                <a href="{{ route('admin.users.user.show') }}"
                     class="block py-2.5 px-4 rounded transition duratition-200 hover:bg-gray-500 hover:text-white">一般ユーザー
                 </a>
             </div>
