@@ -16,7 +16,7 @@ Route::post('/token', [UserController::class, 'token'])->name('api.user.token');
 /**
  * 認証必須API
  */
-Route::middleware(['auth:web',])->group(function () {
+Route::middleware(['auth',])->group(function () {
     // ユーザー情報を返すAPI
     Route::get('/user', function (Request $request) {
         return $request->user();
