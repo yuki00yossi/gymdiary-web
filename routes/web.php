@@ -7,9 +7,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// 利用規約ページ
 Route::get('/terms', function () {
     return view('terms');
 });
+// プライバシーポリシーページ
+Route::get('privacy', function () {
+    return view('privacy');
+});
+
 
 Route::get('/csrf', function () {
     return csrf_token();
