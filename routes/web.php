@@ -7,6 +7,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/terms', function () {
+    return view('terms');
+});
+
 Route::get('/csrf', function () {
     return csrf_token();
 });
