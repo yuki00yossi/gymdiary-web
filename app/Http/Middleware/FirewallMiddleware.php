@@ -25,7 +25,7 @@ class FirewallMiddleware
             return $next($request);
         }
 
-        throw new AuthorizationException(sprintf('Access denied from %s', collect($request->getClientIps())->last()));
+        abort(403);
     }
 
     /**
