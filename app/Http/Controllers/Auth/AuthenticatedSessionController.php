@@ -32,6 +32,19 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Check Login Status.
+     */
+    public function check()
+    {
+        $is_member_login = Auth::guard('web')->check();
+        $is_trainer_login = false;
+        return response()->json([
+            "memberLoggedIn" => $is_member_login,
+            "trainerLoggedIn" => false
+        ]);
+    }
+
+    /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
