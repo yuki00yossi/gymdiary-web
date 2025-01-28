@@ -22,13 +22,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return response()->json(['msg' => 'logged in successfully.'], 200);
     }
 
     /**
@@ -38,6 +38,7 @@ class AuthenticatedSessionController extends Controller
     {
         $is_member_login = Auth::guard('web')->check();
         $is_trainer_login = false;
+
         return response()->json([
             "memberLoggedIn" => $is_member_login,
             "trainerLoggedIn" => false
@@ -47,7 +48,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
 
@@ -55,6 +56,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return response()->json([
+            'msg' => 'logout successfully.'
+        ], 200);
     }
 }

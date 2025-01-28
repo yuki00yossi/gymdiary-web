@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\MealController;
 // Route::post('/user', [UserController::class, 'store'])->name('api.user.store');
 // ログイン（トークン発行）
 // Route::post('/token', [UserController::class, 'token'])->name('api.user.token');
-
+Route::post('/user/login', [AuthenticatedSessionController::class, 'store'])->name('api.user.login');
 Route::get('/auth/check', [AuthenticatedSessionController::class, 'check'])->name('api.auth.check');
 
 /**
@@ -24,13 +24,14 @@ Route::middleware(['auth',])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
-
     // ユーザーを有効化するAPI
     Route::post('/email/verify', [UserController::class, 'verify_email'])->name('api.user.email.verify');
+});
+
+
+Route::middleware(['auth:web', 'verified'])->group(function () {
     // ログアウトするAPI
-    Route::post('/signout', [UserController::class, 'signout'])->name('api.signout');
-    // ログアウト（トークン削除）
-    // Route::delete('/token', [UserController::class, 'deleteToken'])->name('api.user.token.delete');
+    Route::post('/user/signout', [AuthenticatedSessionController::class, 'destroy'])->name('api.user.signout');
 
     /** トレーニングログ関連のAPI */
     // 取得
