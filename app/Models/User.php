@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -82,6 +83,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** 直近７日間の体重情報を取得する */
+    public function weight_daily() {
+        $sevendays=Carbon::today()->subDay(7);
+        return Weight::where('user_id', $this->id)
+            ->whereDate('date', '>=', $sevendays)->get();
     }
 
     public function workouts()

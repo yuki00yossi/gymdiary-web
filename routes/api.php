@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WorkoutController;
 use App\Http\Controllers\Api\MealController;
+use App\Http\Controllers\Api\WeightController;
 
 // 会員登録
 // Route::post('/user', [UserController::class, 'store'])->name('api.user.store');
@@ -32,6 +33,12 @@ Route::middleware(['auth',])->group(function () {
 Route::middleware(['auth:web', 'verified'])->group(function () {
     // ログアウトするAPI
     Route::post('/user/signout', [AuthenticatedSessionController::class, 'destroy'])->name('api.user.signout');
+
+    // 体重取得API
+    Route::get('/user/weight', [WeightController::class, 'get_daily'])->name('api.user.weight.daily');
+
+    // 体重保存（当日）API
+    Route::post('/user/weight', [WeightController::class, 'store_today'])->name('api.user.weight.store');
 
     /** トレーニングログ関連のAPI */
     // 取得
