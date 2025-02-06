@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class User extends Authenticatable
 {
@@ -87,9 +88,85 @@ class User extends Authenticatable
 
     /** 直近７日間の体重情報を取得する */
     public function weight_daily() {
-        $sevendays=Carbon::today()->subDay(7);
-        return Weight::where('user_id', $this->id)
-            ->whereDate('date', '>=', $sevendays)->get();
+        $dates = collect();
+        for ($i = 0; $i < 7; $i++) {
+            $dates->push(Carbon::now()->subDays($i)->startOfDay());
+        }
+
+        $weights = Weight::where('user_id', $this->id)
+            ->whereBetween('date', [$dates->last()->toDateString(), $dates->first()->toDateString()])
+            ->get()
+            ->keyBy(fn($item) => Carbon::parse($item->date)->format('Y-m-d'));
+        // 日付ごとにデータをマッピングし、存在しない日付には null を設定し、すべて UTC で返却
+        $result = $dates->map(function ($date) use ($weights) {
+            $utcDate = $date->copy()->setTimezone('UTC')->toISOString(); // UTCのISO8601形式に変換
+
+            if (isset($weights[$date->toDateString()])) {
+                return [
+                    'date' => $utcDate,  // UTC形式
+                    'weight' => $weights[$date->toDateString()]->weight,
+                ];
+            }
+            return [
+                'date' => $utcDate,  // UTC形式
+                'weight' => null,
+            ];
+        })->reverse();
+
+        return array_values($result->toArray());
+    }
+
+    /**
+     * 直近7週間の平均体重情報を取得するメソッド。
+     *
+     * 各週ごとの開始日（週の月曜日）およびその週の平均体重を計算して返します。
+     * データは最新の週から順に取得され、各週の情報が最大7件含まれます。
+     *
+     * 結果に含まれる情報:
+     * - 平均体重（average_weight）
+     * - 週の開始日（月曜日を基準とする日付: week_start_date）
+     *
+     * 処理の流れ:
+     * - 月曜日を週の始まりとし、週ごとに体重データをグループ化。
+     * - 各週の体重データを平均し、直近7週間分の結果を取得します。
+     *
+     * @return \Illuminate\Support\Collection 週ごとの平均体重情報（最大7件）
+     */
+    public function weight_weekly() {
+        $weeks = collect();
+        for ($i = 0; $i < 7; $i++) {
+            $weeks->push(Carbon::now()->startOfWeek(Carbon::MONDAY)->subWeeks($i)->toDateString());
+        }
+
+        // 週ごとの平均体重データを取得
+        $weights = Weight::select(
+            DB::raw('AVG(weight) as average_weight'),
+            DB::raw('STR_TO_DATE(CONCAT(YEAR(date), " ", WEEK(date, 1), " Monday"), "%X %V %W") as week_start_date')
+        )
+            ->where('user_id', $this->id)
+            ->groupBy('week_start_date')
+            ->orderBy('week_start_date', 'desc')
+            ->get()
+            ->keyBy('week_start_date');
+
+        // 各週の日付ごとにデータをマッピングし、存在しない週はnullを設定し、UTC形式で返却
+        $result = $weeks->map(function ($weekStart) use ($weights) {
+            $utcDate = Carbon::parse($weekStart)->setTimezone('UTC')->toISOString();
+
+            if (isset($weights[$weekStart])) {
+                return [
+                    'date' => $utcDate,  // UTC形式
+                    'weight' => round($weights[$weekStart]->average_weight, 2),
+                ];
+            }
+
+            return [
+                'date' => $utcDate,  // UTC形式
+                'weight' => null,
+            ];
+        })->reverse()->toArray();
+
+        return array_values($result);
     }
 
     public function workouts()

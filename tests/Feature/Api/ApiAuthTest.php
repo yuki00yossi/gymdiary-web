@@ -308,11 +308,11 @@ it('logs out a user successfully.', function () {
 
     $this->actingAs($user);
 
-    $response = $this->postJson('/api/signout');
+    $response = $this->postJson('/api/user/signout');
 
     // ステータスコード200とレスポンス内容を確認
     $response->assertStatus(200)
-             ->assertExactJson(['signouted']);
+             ->assertExactJson(['msg' => 'logout successfully.']);
 
     // ユーザーが認証解除されていることを確認
     $this->assertGuest();
@@ -321,26 +321,26 @@ it('logs out a user successfully.', function () {
 // 未認証状態でログアウトAPIを呼び出した場合の動作を確認
 it('does nothing when unauthenticated user attempts to log out.', function () {
     // 認証されていない状態でAPIを呼び出し
-    $response = $this->postJson('/api/signout');
+    $response = $this->postJson('/api/user/signout');
 
     $response->assertStatus(401);
 
     $this->assertGuest();
 });
 
-// セッションが無効化された状態でログアウトAPIを呼び出してもエラーにならないことを確認
+// セッションが無効化された状態でログアウトAPIを呼び出したら401になること
 it('handles logout when session is already invalidated.', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user);
 
     // 初回のログアウトAPIを呼び出し
-    $this->postJson('/api/signout');
+    $this->postJson('/api/user/signout');
 
     // セッションが無効化された状態で再度ログアウトAPIを呼び出し
-    $response = $this->postJson('/api/signout');
+    $response = $this->postJson('/api/user/signout');
 
-    // ステータスコード200とレスポンス内容を確認
+    // ステータスコードを確認
     $response->assertStatus(401);
 });
 

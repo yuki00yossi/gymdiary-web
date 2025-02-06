@@ -37,6 +37,12 @@ class WeightController extends Controller
 
     /** ユーザーの体重情報（一週間分）を取得するAPI */
     public function get_daily(Request $request) {
+        // dd($request->user()->weight_daily());
         return response()->json($request->user()->weight_daily(), 200);
+    }
+
+    /** ユーザーの体重情報（週ごとの平均体重情報）を取得するAPI */
+    public function get_weekly(Request $request) {
+        return response()->json($request->user()->weight_weekly(), 200);
     }
 }

@@ -34,8 +34,10 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
     // ログアウトするAPI
     Route::post('/user/signout', [AuthenticatedSessionController::class, 'destroy'])->name('api.user.signout');
 
-    // 体重取得API
+    // 体重(直近7日)取得API
     Route::get('/user/weight', [WeightController::class, 'get_daily'])->name('api.user.weight.daily');
+    // 体重(直近7週間)取得API
+    Route::get('/user/weight/weekly', [WeightController::class, 'get_weekly'])->name('api.user.weight.weekly');
 
     // 体重保存（当日）API
     Route::post('/user/weight', [WeightController::class, 'store_today'])->name('api.user.weight.store');
