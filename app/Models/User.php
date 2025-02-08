@@ -141,7 +141,7 @@ class User extends Authenticatable
         // 週ごとの平均体重データを取得
         $weights = Weight::select(
             DB::raw('AVG(weight) as average_weight'),
-            DB::raw('STR_TO_DATE(CONCAT(YEAR(date), " ", WEEK(date, 1), " Monday"), "%X %V %W") as week_start_date')
+            DB::raw('DATE_FORMAT(date - INTERVAL WEEKDAY(date) DAY, "%Y-%m-%d") as week_start_date')
         )
             ->where('user_id', $this->id)
             ->groupBy('week_start_date')
